@@ -33,6 +33,7 @@ const KeyboardHandler = ({
 
 const App: React.FC = () => {
   const [showRecordingView, setShowRecordingView] = React.useState(true);
+  const [showHelp, setShowHelp] = React.useState(true);
   const [isVisible, setIsVisible] = React.useState(
     document.visibilityState === "visible"
   );
@@ -49,41 +50,43 @@ const App: React.FC = () => {
     ? { backgroundImage: `url(${URL.createObjectURL(freezeImage)})` }
     : {};
 
-  if(!isVisible) {
-    return <LoadingSpinner />
+  if (!isVisible) {
+    return <LoadingSpinner />;
   }
 
   return (
-    <div className="App">
-        <KeyboardHandler
-          onR={() => setShowRecordingView(true)}
-          onS={() => setShowRecordingView(false)}
-        />
-        {showRecordingView ? (
-          <div style={{ position: "relative", width: "100%", height: "100vh" }}>
-            <div
-              style={{
-                ...i,
-                transform: "scaleX(-1)",
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-                backgroundPosition: "center center",
-                filter: "grayscale(100%)",
-                zIndex: 1
-              }}
-            ><LoadingSpinner /></div>
-            <RecordView
-              onFreezeImage={setFreezeImage}
-              unmountMe={() => {
-                // terrible hack because recording component seems to change things™
-                // setIsVisible(false);
-              }}
-            />
+    <div className="App" style={{overflow: 'hidden'}}>
+      <KeyboardHandler
+        onR={() => setShowRecordingView(true)}
+        onS={() => setShowRecordingView(false)}
+      />
+      {showRecordingView ? (
+        <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+          <div
+            style={{
+              ...i,
+              transform: "scaleX(-1)",
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              backgroundPosition: "center center",
+              filter: "grayscale(100%)",
+              zIndex: 1
+            }}
+          >
+            <LoadingSpinner />
           </div>
-        ) : (
-          <Stories />
-        )}
+          <RecordView
+            onFreezeImage={setFreezeImage}
+            unmountMe={() => {
+              // terrible hack because recording component seems to change things™
+              // setIsVisible(false);
+            }}
+          />
+        </div>
+      ) : (
+        <Stories />
+      )}
     </div>
   );
 };

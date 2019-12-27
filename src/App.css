@@ -51,3 +51,34 @@
   -o-animation: rotating 1s alternate-reverse infinite;
   animation: rotating 1s alternate-reverse infinite;
 }
+
+.control-help-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.control-help-container div.control-help {
+  position: absolute;
+  height: 100vh;
+  width: 100%;
+  left: 0;
+  top: 0;
+  z-index: 999999;
+  opacity: 0;
+  transition: opacity 400ms;
+  padding-top: 80vh;
+}
+.control-help-container:hover div.control-help,
+.control-help-container.show div.control-help {
+  background-image: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 1) 30%,
+    rgba(0, 0, 0, 0)
+  );
+  opacity: 1;
+}
+
+.control-help-container.hide div.control-help {
+  display: none;
+}

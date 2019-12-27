@@ -176,10 +176,8 @@ function createWindow() {
     frame: false,
 
     webPreferences: {
-      backgroundThrottling: false,
+      backgroundThrottling: true,
       devTools: true,
-      webviewTag: true,
-      nodeIntegration: true
     }
   });
 

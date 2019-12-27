@@ -2,7 +2,7 @@ import React from "react";
 import { ReactMediaRecorder } from "react-media-recorder";
 
 // @ts-ignore
-import * as fixWebmDuration from 'fix-webm-duration'
+import * as fixWebmDuration from "fix-webm-duration";
 import { LoadingSpinner } from "./Loading";
 
 const constraints = {
@@ -25,7 +25,14 @@ const constraints = {
 
 const VideoRecordingPreview = ({ mediaBlobUrl }: { mediaBlobUrl: string }) => {
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+    <div
+      className="control-help-container"
+      style={{ position: "relative", width: "100%", height: "100%" }}
+    >
+      <div className="control-help">
+        <p>Press "s" to save the recorded story</p>
+        <p>Press "d" to discard the recorded story</p>
+      </div>
       <video
         src={mediaBlobUrl}
         style={{ transform: "scaleX(-1)", width: "100%", height: "100%" }}
@@ -38,7 +45,7 @@ const VideoRecordingPreview = ({ mediaBlobUrl }: { mediaBlobUrl: string }) => {
 
 const VideoLivePreview = ({
   stream,
-  isRecording,
+  isRecording
 }: {
   stream: MediaStream | null;
   status: string;
@@ -80,11 +87,18 @@ const VideoLivePreview = ({
         ></div>
       )}
 
-      <video
-        ref={videoRef}
-        style={{ transform: "scaleX(-1)", width: "100%", height: "100%" }}
-        autoPlay
-      />
+      <div className={`control-help-container ${isRecording && 'hide'}`}>
+        <video
+          ref={videoRef}
+          style={{ transform: "scaleX(-1)", width: "100%", height: "100%" }}
+          autoPlay
+        />
+
+        <div className="control-help">
+          <p>Hold "Space" to record a story</p>
+          <p>Press "p" to preview stories</p>
+        </div>
+      </div>
     </div>
   );
 };
@@ -150,7 +164,6 @@ function RecorderHandler({
   );
 
   React.useEffect(() => {
-
     document.addEventListener("keyup", keyUpHandler);
     document.addEventListener("keydown", keyDownHandler);
 
@@ -158,7 +171,6 @@ function RecorderHandler({
       document.removeEventListener("keyup", keyUpHandler);
       document.removeEventListener("keydown", keyDownHandler);
     };
-
   }, [keyDownHandler, keyUpHandler]);
 
   return null;
@@ -167,11 +179,11 @@ function RecorderHandler({
 function RecordingHandler({
   mediaBlobUrl,
   onSavedOrDiscarded,
-  duration,
+  duration
 }: {
   mediaBlobUrl: string | null;
   onSavedOrDiscarded: Function;
-  duration: number
+  duration: number;
 }) {
   const handler = React.useCallback(
     async (e: KeyboardEvent) => {
@@ -181,17 +193,17 @@ function RecordingHandler({
           return;
         }
 
-        // we "download" the video blob which the url points to, fix the duration meta info and upload it to the main process 
+        // we "download" the video blob which the url points to, fix the duration meta info and upload it to the main process
         const res = await fetch(mediaBlobUrl);
         const blob = await res.blob();
-        fixWebmDuration(blob, duration, async (fixedBlob:Blob) => {
+        fixWebmDuration(blob, duration, async (fixedBlob: Blob) => {
           await fetch("http://localhost:3399", {
             method: "POST",
             body: fixedBlob,
             mode: "no-cors"
           });
           onSavedOrDiscarded();
-        })
+        });
       }
       if (e.code === "KeyD") {
         if (mediaBlobUrl == null) {
@@ -207,8 +219,10 @@ function RecordingHandler({
 
   React.useEffect(() => {
     document.addEventListener("keyup", handler, false);
-    return () => document.removeEventListener("keyup", handler);
-  }, [handler]);
+    return () => {
+      document.removeEventListener("keyup", handler);
+    };
+  }, [duration, handler]);
   return null;
 }
 
@@ -221,8 +235,12 @@ export const RecordView = ({
 }) => {
   const [stream, setStream] = React.useState(null as null | MediaStream);
   const [recording, setRecording] = React.useState(null as null | string);
-  const [recordingStartTimestamp, setRecordingStartTimestamp] = React.useState(0)
-  const [recordingStopTimestamp, setRecordingStopTimestamp] = React.useState(0)
+  const [recordingStartTimestamp, setRecordingStartTimestamp] = React.useState(
+    0
+  );
+  const [recordingStopTimestamp, setRecordingStopTimestamp] = React.useState(0);
+
+  const [showRecordingHelp, setShowRecordingHelp] = React.useState(false);
 
   React.useEffect(() => {
     // disable camera on unmount
@@ -237,11 +255,10 @@ export const RecordView = ({
       video={constraints.video}
       audio={constraints.audio}
       onStop={mediaBlobUrl => {
-        setRecordingStopTimestamp(Date.now())
+        setRecordingStopTimestamp(Date.now());
         console.log("onStop", mediaBlobUrl);
         setRecording(mediaBlobUrl);
       }}
-
       render={({
         status,
         startRecording,
@@ -249,11 +266,10 @@ export const RecordView = ({
         mediaBlobUrl,
         previewStream
       }) => {
-
-        if(status === 'recording' && recordingStartTimestamp === 0) {
-          console.log('setRecordingStartTimestamp')
+        if (status === "recording" && recordingStartTimestamp === 0) {
+          console.log("setRecordingStartTimestamp");
           setRecordingStartTimestamp(Date.now());
-        } 
+        }
         if (stream == null && previewStream != null) {
           console.log("setting stream", previewStream);
           setStream(previewStream);
@@ -291,6 +307,23 @@ export const RecordView = ({
                   mediaBlobUrl={mediaBlobUrl}
                   duration={recordingStopTimestamp - recordingStartTimestamp}
                 />
+                {showRecordingHelp && (
+                  <div
+                    onClick={() => setShowRecordingHelp(false)}
+                    style={{
+                      background: "rgba(0,0,0,.8)",
+                      height: "100vh",
+                      width: "100%",
+                      position: "absolute",
+                      left: 0,
+                      top: 0,
+                      zIndex: 999
+                    }}
+                  >
+                    <p>Press s to save story</p>
+                    <p>Press d to discard story</p>
+                  </div>
+                )}
                 <VideoRecordingPreview mediaBlobUrl={recording} />
               </>
             ) : (
