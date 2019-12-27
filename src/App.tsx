@@ -4,8 +4,15 @@ import "./App.css";
 import useInterval from "@use-it/interval";
 import { RecordView } from "./components/Video";
 import { Stories } from "./components/Stories";
+import { LoadingSpinner } from "./components/Loading";
 
-const KeyboardHandler = ({ onR, onS }: { onR: () => void; onS: () => void }) => {
+const KeyboardHandler = ({
+  onR,
+  onS
+}: {
+  onR: () => void;
+  onS: () => void;
+}) => {
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.code === "KeyR") {
@@ -32,37 +39,51 @@ const App: React.FC = () => {
 
   const [freezeImage, setFreezeImage] = React.useState(null as null | Blob);
 
+  // this is a hack to recognize the visibility change of the page
   useInterval(() => {
     if ((document.visibilityState === "visible") !== isVisible)
       setIsVisible(document.visibilityState === "visible");
   }, 200);
-  console.log({ isVisible, showRecordingView });
-  const i = freezeImage ? {backgroundImage: `url(${URL.createObjectURL(freezeImage)})`, } : {}
+
+  const i = freezeImage
+    ? { backgroundImage: `url(${URL.createObjectURL(freezeImage)})` }
+    : {};
+
+  if(!isVisible) {
+    return <LoadingSpinner />
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
         <KeyboardHandler
           onR={() => setShowRecordingView(true)}
           onS={() => setShowRecordingView(false)}
         />
-        {isVisible ? (
-          showRecordingView ? (
-            <div style={{position: 'relative', width: '100%', height: '100vh' }}>
-              <div style={{...i, transform: "scaleX(-1)", position: 'absolute', width: '100%', height: '100%', backgroundPosition: 'center center', filter: 'grayscale(100%)', zIndex: 1}}></div>
-              <RecordView
-                onFreezeImage={setFreezeImage}
-                onMountMe={() => {
-                  // terrible hack because recording component seems to change things™
-                  setIsVisible(false);
-                }}
-     
-              />
-            </div>
-          ) : (
-            <Stories />
-          )
-        ) : null}
-      </header>
+        {showRecordingView ? (
+          <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+            <div
+              style={{
+                ...i,
+                transform: "scaleX(-1)",
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                backgroundPosition: "center center",
+                filter: "grayscale(100%)",
+                zIndex: 1
+              }}
+            ><LoadingSpinner /></div>
+            <RecordView
+              onFreezeImage={setFreezeImage}
+              unmountMe={() => {
+                // terrible hack because recording component seems to change things™
+                // setIsVisible(false);
+              }}
+            />
+          </div>
+        ) : (
+          <Stories />
+        )}
     </div>
   );
 };

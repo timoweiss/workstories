@@ -98,9 +98,9 @@ function stopAndRemoveTrack(
     const imageCapture = new window.ImageCapture(track);
     // @ts-ignore
 
-    imageCapture.takePhoto().then(p => {
+    imageCapture.takePhoto().then(image => {
       // console.log({p})
-      onImage(p);
+      onImage(image);
       track.stop();
       mediaStream.removeTrack(track);
     });
@@ -129,10 +129,6 @@ function RecorderHandler({
   isRecording: boolean;
   status: string;
 }) {
-  console.log({ isRecording });
-
-  
-
   const keyUpHandler = React.useCallback(
     e => {
       if (e.code === "Space") {
@@ -156,13 +152,13 @@ function RecorderHandler({
   React.useEffect(() => {
 
     document.addEventListener("keyup", keyUpHandler);
-
     document.addEventListener("keydown", keyDownHandler);
 
     return () => {
       document.removeEventListener("keyup", keyUpHandler);
       document.removeEventListener("keydown", keyDownHandler);
     };
+
   }, [keyDownHandler, keyUpHandler]);
 
   return null;
@@ -185,6 +181,7 @@ function RecordingHandler({
           return;
         }
 
+        // we "download" the video blob which the url points to, fix the duration meta info and upload it to the main process 
         const res = await fetch(mediaBlobUrl);
         const blob = await res.blob();
         fixWebmDuration(blob, duration, async (fixedBlob:Blob) => {
@@ -195,9 +192,6 @@ function RecordingHandler({
           });
           onSavedOrDiscarded();
         })
-        
-
-        
       }
       if (e.code === "KeyD") {
         if (mediaBlobUrl == null) {
@@ -219,10 +213,10 @@ function RecordingHandler({
 }
 
 export const RecordView = ({
-  onMountMe,
+  unmountMe,
   onFreezeImage
 }: {
-  onMountMe: Function;
+  unmountMe: Function;
   onFreezeImage: (image: Blob) => void;
 }) => {
   const [stream, setStream] = React.useState(null as null | MediaStream);
@@ -238,16 +232,11 @@ export const RecordView = ({
       });
   }, [onFreezeImage, stream]);
 
-  React.useEffect(() => {
-    console.log({recordingStartTimestamp,recordingStopTimestamp, recording})
-  }, [recordingStartTimestamp, recordingStopTimestamp, recording]);
   return (
     <ReactMediaRecorder
       video={constraints.video}
       audio={constraints.audio}
       onStop={mediaBlobUrl => {
-        console.log('aa', {recordingStartTimestamp}, Date.now() - recordingStartTimestamp);
-        // setRecordingStartTimestamp(0)
         setRecordingStopTimestamp(Date.now())
         console.log("onStop", mediaBlobUrl);
         setRecording(mediaBlobUrl);
@@ -297,7 +286,7 @@ export const RecordView = ({
                   onSavedOrDiscarded={() => {
                     URL.revokeObjectURL(mediaBlobUrl as string);
                     setRecording(null);
-                    onMountMe();
+                    unmountMe();
                   }}
                   mediaBlobUrl={mediaBlobUrl}
                   duration={recordingStopTimestamp - recordingStartTimestamp}
