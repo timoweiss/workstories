@@ -33,7 +33,6 @@ const KeyboardHandler = ({
 
 const App: React.FC = () => {
   const [showRecordingView, setShowRecordingView] = React.useState(true);
-  const [showHelp, setShowHelp] = React.useState(true);
   const [isVisible, setIsVisible] = React.useState(
     document.visibilityState === "visible"
   );
@@ -55,7 +54,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="App" style={{overflow: 'hidden'}}>
+    <div className="App" style={{ overflow: "hidden" }}>
       <KeyboardHandler
         onR={() => setShowRecordingView(true)}
         onS={() => setShowRecordingView(false)}

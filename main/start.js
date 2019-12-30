@@ -1,6 +1,7 @@
 const http = require("http");
 const os = require("os");
 const path = require("path");
+const url = require("url");
 
 const electron = require("electron");
 const uuid = require("uuid/v4");
@@ -10,22 +11,19 @@ const BrowserWindow = electron.BrowserWindow;
 const Tray = electron.Tray;
 
 const isDev = require("electron-is-dev");
-const { getVideoDurationInSeconds } = require('get-video-duration')
 
-const {
-  promises: fs,
-  createWriteStream,
-  createReadStream
-} = require("fs");
+const { promises: fs, createWriteStream, createReadStream } = require("fs");
 
-const videoPath = isDev ? path.resolve('./dev-movies') : electron.app.getPath("videos");
-const appDataPath = isDev ?  path.resolve('./app-data') : electron.app.getPath("userData");
+const videoPath = isDev
+  ? path.resolve("./dev-movies")
+  : electron.app.getPath("videos");
+const appDataPath = isDev
+  ? path.resolve("./app-data")
+  : electron.app.getPath("userData");
 const videoDirectory = path.join(videoPath, "workstories");
 const videoLogFile = path.join(appDataPath, "workstories.json");
 
 const trayIconPath = path.join(__dirname, "./img/Template.png");
-
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 function createRandomVideoFilePath() {
   const id = uuid();
@@ -41,7 +39,7 @@ async function ensureDirectory(directoryPath) {
     await fs.access(directoryPath);
     console.log("dir exists", directoryPath);
   } catch (e) {
-    await fs.mkdir(directoryPath, {recursive: true});
+    await fs.mkdir(directoryPath, { recursive: true });
     console.log("created dir", directoryPath);
   }
 }
@@ -54,14 +52,11 @@ async function ensureFile(filename) {
   }
 }
 
-
 const s = http.createServer(async (req, res) => {
-
-  if(req.url && req.url.includes('/model/')){
-
-    console.log(req.url)
+  if (req.url && req.url.includes("/model/")) {
+    console.log(req.url);
     res.setHeader("content-type", "application/json");
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader("Access-Control-Allow-Origin", "*");
     const file = await fs.readFile(path.join(__dirname, req.url), "utf-8");
     res.write(file);
     res.end();
@@ -69,10 +64,10 @@ const s = http.createServer(async (req, res) => {
   }
 
   if (req.url && req.url.endsWith("/list")) {
-    if(req.url.endsWith('.json')) {
+    if (req.url.endsWith(".json")) {
       res.setHeader("content-type", "application/json");
     }
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader("Access-Control-Allow-Origin", "*");
     console.log({ videoLogFile });
     const file = await fs.readFile(videoLogFile, "utf-8");
     console.log({ file });
@@ -83,26 +78,23 @@ const s = http.createServer(async (req, res) => {
 
   const videoFilePath = createRandomVideoFilePath();
   const stream = createWriteStream(videoFilePath.path);
-  req.pipe(stream);  
-
+  req.pipe(stream);
+  const durationInMs = new url.URLSearchParams(url.parse(req.url).search).get(
+    "duration"
+  );
   req.on("end", async () => {
     stream.end();
-    const rs = createReadStream(videoFilePath.path)
-    let videoDuration = null;
-    try {
-      videoDuration  = await getVideoDurationInSeconds(rs)
-      
-    } catch (e) {
-      console.error(e)
-      
-    }
-    rs.close()
+
     res.end("bla\n");
 
     const file = await fs.readFile(videoLogFile, "utf-8");
     const parsed = JSON.parse(file);
     console.log({ parsed });
-    parsed.push({ url: "http://localhost:3398/" + videoFilePath.fileName, created: Date.now(), duration: videoDuration });
+    parsed.push({
+      url: "http://localhost:3398/" + videoFilePath.fileName,
+      created: Date.now(),
+      duration: durationInMs / 1000
+    });
     const p = JSON.stringify(parsed);
     console.log("new p", p);
     await fs.writeFile(videoLogFile, p);
@@ -110,8 +102,6 @@ const s = http.createServer(async (req, res) => {
   console.log("req");
 });
 s.listen(3399, () => console.log("l 3399"));
-
-
 
 const s2 = http.createServer(async (req, res) => {
   console.log(req.url, req.method);
@@ -147,17 +137,17 @@ function updateWindowPosition(window) {
 }
 
 function toggleWindow(window) {
-  console.log('toggle');
+  console.log("toggle");
   if (window == null) {
     window = createWindow();
   }
   if (window.isVisible()) {
-    console.log('toggle hide');
+    console.log("toggle hide");
     window.hide();
   } else {
     updateWindowPosition(window);
     window.show();
-    console.log('toggle show');
+    console.log("toggle show");
   }
 }
 
@@ -177,13 +167,13 @@ function createWindow() {
 
     webPreferences: {
       backgroundThrottling: true,
-      devTools: true,
+      devTools: true
     }
   });
 
-  mainWindow.on('moved', arg => {
-    console.log('moved', arg.sender.getBounds())
-  })
+  mainWindow.on("moved", arg => {
+    console.log("moved", arg.sender.getBounds());
+  });
 
   mainWindow.loadURL(
     isDev
@@ -200,7 +190,7 @@ function createWindow() {
     console.log("on closed");
   });
 
-  mainWindow.once('ready-to-show', () => mainWindow.show())
+  mainWindow.once("ready-to-show", () => mainWindow.show());
 
   mainWindow.on("blur", () => mainWindow.hide());
 
@@ -218,15 +208,17 @@ function createWindow() {
 
 app.on("ready", async () => {
   BrowserWindow.addDevToolsExtension(
-    path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.2.1_0')
-  )
+    path.join(
+      os.homedir(),
+      "/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.2.1_0"
+    )
+  );
   const { window, tray } = createWindow();
 
   updateWindowPosition(window);
 
   // keeping the trey referenced here so that it does not get garbage collected
   onOpen(() => toggleWindow(window, tray));
-
 });
 
 app.on("window-all-closed", () => {

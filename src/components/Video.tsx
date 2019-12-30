@@ -87,7 +87,7 @@ const VideoLivePreview = ({
         ></div>
       )}
 
-      <div className={`control-help-container ${isRecording && 'hide'}`}>
+      <div className={`control-help-container ${isRecording && "hide"}`}>
         <video
           ref={videoRef}
           style={{ transform: "scaleX(-1)", width: "100%", height: "100%" }}
@@ -113,7 +113,6 @@ function stopAndRemoveTrack(
     // @ts-ignore
 
     imageCapture.takePhoto().then(image => {
-      // console.log({p})
       onImage(image);
       track.stop();
       mediaStream.removeTrack(track);
@@ -197,7 +196,7 @@ function RecordingHandler({
         const res = await fetch(mediaBlobUrl);
         const blob = await res.blob();
         fixWebmDuration(blob, duration, async (fixedBlob: Blob) => {
-          await fetch("http://localhost:3399", {
+          await fetch(`http://localhost:3399?duration=${duration}`, {
             method: "POST",
             body: fixedBlob,
             mode: "no-cors"
@@ -266,6 +265,7 @@ export const RecordView = ({
         mediaBlobUrl,
         previewStream
       }) => {
+        console.log({ status });
         if (status === "recording" && recordingStartTimestamp === 0) {
           console.log("setRecordingStartTimestamp");
           setRecordingStartTimestamp(Date.now());
