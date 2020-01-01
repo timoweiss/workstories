@@ -9,6 +9,7 @@ const uuid = require("uuid/v4");
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const Tray = electron.Tray;
+const systemPreferences = electron.systemPreferences
 
 const isDev = require("electron-is-dev");
 
@@ -197,6 +198,19 @@ function createWindow() {
 }
 
 app.on("ready", async () => {
+  const cameraGranted = await systemPreferences.askForMediaAccess('camera')
+  const microphoneGranted = await systemPreferences.askForMediaAccess('microphone')
+  console.log({cameraGranted, microphoneGranted})
+
+  if(!cameraGranted || !microphoneGranted) {
+    electron.dialog.showErrorBox(
+      'Missing permissions',
+      'This app needs to access both microphone and camera to work properly as intended'
+    )
+    process.exit(1)
+  }
+
+  systemPreferences.postNotification('notification', {test: 'hello'}, true)
   BrowserWindow.addDevToolsExtension(
     path.join(
       os.homedir(),
