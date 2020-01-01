@@ -53,16 +53,6 @@ async function ensureFile(filename) {
 }
 
 const s = http.createServer(async (req, res) => {
-  if (req.url && req.url.includes("/model/")) {
-    console.log(req.url);
-    res.setHeader("content-type", "application/json");
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    const file = await fs.readFile(path.join(__dirname, req.url), "utf-8");
-    res.write(file);
-    res.end();
-    return;
-  }
-
   if (req.url && req.url.endsWith("/list")) {
     if (req.url.endsWith(".json")) {
       res.setHeader("content-type", "application/json");
