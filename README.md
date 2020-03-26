@@ -4,9 +4,7 @@ Electron app to record short video sequences to later recall what you have done 
 I built this with the idea to have something to effordless collect notes throughout the day.
 The app might not be best suited for open plan offices - at least if you don't want to bother your coworkers all the time ;)
 
-<img src="./01.png" style="width: 150px;float:left;" />
-<img src="./02.png" style="width: 150px;float:left;" />
-<img src="./03.png" style="width: 150px;" />
+<img src="./01.png" />
 
 ## Usage
 
