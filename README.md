@@ -1,8 +1,20 @@
 # Workstories
 
-```
-# react app in dev mode
-npm start
-# electron app in dev mode
-npm run electron
-```
+Electron app to record short video sequences to later recall what you have done that day.
+
+## Usage
+
+The application is mostly controlled using keyboard keys.
+
+- toggle app: `CMD+Shift+U`
+- record video: `Space`
+  - save recorded video: `s`
+  - discard recorded video: `d`
+- navigate to video list: `p`
+- navigate to recording view: `r`
+
+## Privacy
+
+No data is leaving your computer!
+All video-files are stored in the following directory `/Users/<your_username>/Movies/workstories`.
+There is a file which is used to collect the meta-data of the recorded videos which is located at the applications directory `/Users/<your_username>/Library/Application\ Support/workstories`.

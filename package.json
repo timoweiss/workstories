@@ -1,7 +1,7 @@
 {
   "name": "workstories",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "private": false,
   "homepage": "./",
   "main": "main/start.js",
   "scripts": {
@@ -14,6 +14,11 @@
     "pack": "electron-builder --dir",
     "makeapp": "npm run build && npm run dist"
   },
+  "author": {
+    "email": "info@timo-weiss.com",
+    "name": "Timo Weiß"
+  },
+  "description": "Create small video notes to remember what you did during the day",
   "build": {
     "extends": null,
     "appId": "com.timo-weiss",
@@ -27,6 +32,7 @@
       "build/**/*",
       "package.json",
       "./main/**",
+      "!**/dist",
       "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
       "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
       "!**/node_modules/*.d.ts",
@@ -37,26 +43,25 @@
       "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
       "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
       "!**/{appveyor.yml,.travis.yml,circle.yml}",
-      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}",
+      "!**/node_modules/@testing-library/**",
+      "!**/node_modules/@types/**",
+      "!**/node_modules/nodemon/**",
+      "!**/node_modules/electron-builder/**",
+      "!**/node_modules/electron-reload/**"
     ],
     "directories": {
-      "buildResources": "assets"
+      "buildResources": "build"
     }
   },
   "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "@types/jest": "^24.0.0",
-    "@types/node": "^12.0.0",
-    "@types/react": "^16.9.0",
-    "@types/react-dom": "^16.9.0",
     "@use-it/interval": "^0.1.3",
+    "date-fns": "^2.8.1",
     "electron-is-dev": "^1.1.0",
+    "electron-log": "^4.0.2",
     "fix-webm-duration": "^1.0.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-insta-stories": "^2.0.2",
     "react-media-recorder": "^1.2.0",
     "react-scripts": "3.3.0",
     "react-use-user-media": "0.0.0",
@@ -80,6 +85,13 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.4.0",
+    "@testing-library/user-event": "^7.2.1",
+    "@types/jest": "^24.0.25",
+    "@types/node": "^12.12.22",
+    "@types/react": "^16.9.17",
+    "@types/react-dom": "^16.9.4",
     "electron": "^7.1.4",
     "electron-builder": "^21.2.0",
     "electron-reload": "^1.5.0",

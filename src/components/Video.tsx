@@ -45,11 +45,13 @@ const VideoRecordingPreview = ({ mediaBlobUrl }: { mediaBlobUrl: string }) => {
 
 const VideoLivePreview = ({
   stream,
-  isRecording
+  isRecording,
+  freezeImage
 }: {
   stream: MediaStream | null;
   status: string;
   isRecording: boolean;
+  freezeImage: any;
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   React.useEffect(() => {
@@ -61,6 +63,9 @@ const VideoLivePreview = ({
   if (!stream) {
     return null;
   }
+  const i = freezeImage
+    ? { backgroundImage: `url(${URL.createObjectURL(freezeImage)})` }
+    : {};
   return (
     <div
       style={{
@@ -84,13 +89,37 @@ const VideoLivePreview = ({
             height: "calc(100% - 8px)",
             border: "4px solid rgba(231, 76, 60,.7)"
           }}
-        ></div>
+        >
+          <div className="recorder-container">
+              <div className="outer"></div>
+              <div className="outer-2"></div>
+              <div className="icon-microphone"> a </div>
+          </div>
+        </div>
       )}
 
       <div className={`control-help-container ${isRecording && "hide"}`}>
+        <div
+          style={{
+            ...i,
+            overflow: "hidden",
+            backgroundSize: "auto 100%",
+            backgroundPosition: "center center",
+            width: "100%",
+            height: "100%",
+            position: 'absolute',
+            transform: "scaleX(-1)",
+            filter: 'grayscale(100%)'
+          }}
+        ></div>
         <video
           ref={videoRef}
-          style={{ transform: "scaleX(-1)", width: "100%", height: "100%" }}
+          style={{
+            overflow: "hidden",
+            transform: "scaleX(-1)",
+            width: "100%",
+            height: "100%"
+          }}
           autoPlay
         />
 
@@ -227,10 +256,12 @@ function RecordingHandler({
 
 export const RecordView = ({
   unmountMe,
-  onFreezeImage
+  onFreezeImage,
+  freezeImage
 }: {
   unmountMe: Function;
-  onFreezeImage: (image: Blob) => void;
+  onFreezeImage: (image: Blob | null) => void;
+  freezeImage: any;
 }) => {
   const [stream, setStream] = React.useState(null as null | MediaStream);
   const [recording, setRecording] = React.useState(null as null | string);
@@ -307,6 +338,7 @@ export const RecordView = ({
                   mediaBlobUrl={mediaBlobUrl}
                   duration={recordingStopTimestamp - recordingStartTimestamp}
                 />
+
                 {showRecordingHelp && (
                   <div
                     onClick={() => setShowRecordingHelp(false)}
@@ -331,6 +363,7 @@ export const RecordView = ({
                 isRecording={status === "recording"}
                 status={status}
                 stream={previewStream}
+                freezeImage={freezeImage}
               />
             )}
           </div>

@@ -3,7 +3,7 @@ import "./App.css";
 
 import useInterval from "@use-it/interval";
 import { RecordView } from "./components/Video";
-import { Stories } from "./components/Stories";
+import { StoriesView } from "./components/Stories";
 import { LoadingSpinner } from "./components/Loading";
 
 const KeyboardHandler = ({
@@ -45,9 +45,6 @@ const App: React.FC = () => {
       setIsVisible(document.visibilityState === "visible");
   }, 200);
 
-  const i = freezeImage
-    ? { backgroundImage: `url(${URL.createObjectURL(freezeImage)})` }
-    : {};
 
   if (!isVisible) {
     return <LoadingSpinner />;
@@ -60,31 +57,18 @@ const App: React.FC = () => {
         onS={() => setShowRecordingView(false)}
       />
       {showRecordingView ? (
-        <div style={{ position: "relative", width: "100%", height: "100vh" }}>
-          <div
-            style={{
-              ...i,
-              transform: "scaleX(-1)",
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-              backgroundPosition: "center center",
-              filter: "grayscale(100%)",
-              zIndex: 1
-            }}
-          >
-            <LoadingSpinner />
-          </div>
+        <div style={{ position: "relative", width: "100%" }}>
           <RecordView
             onFreezeImage={setFreezeImage}
             unmountMe={() => {
               // terrible hack because recording component seems to change things™
-              // setIsVisible(false);
+              setIsVisible(false);
             }}
+            freezeImage={freezeImage}
           />
         </div>
       ) : (
-        <Stories />
+        <StoriesView />
       )}
     </div>
   );
