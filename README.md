@@ -1,5 +1,7 @@
 # Workstories
 
+[Download from releases](https://github.com/timoweiss/workstories/releases)
+
 Electron app to record short video sequences to later recall what you have done that day.
 I built this with the idea to have something to effordless collect notes throughout the day.
 The app might not be best suited for open plan offices - at least if you don't want to bother your coworkers all the time ;)
